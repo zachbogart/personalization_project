@@ -51,18 +51,18 @@ def runModel(ratings, model, paramGrid):
 def runParameterTuning(ratingsTrainDataset):
     # NMF MODEL _______________________________________________________________________________________________________
     modelNMF = NMF
-    # paramGrid = {
-    #     'n_epochs': [10, 25, 50],
-    #     'n_factors': [5, 15, 30],
-    #     'reg_pu': [0.1, 0.3, 0.5],
-    #     'reg_qi': [0.1, 0.3, 0.5],
-    #     'biased': [True, False],
-    #     'random_state': [42],
-    # }
     paramGridNMF = {
-        # 'n_epochs': [10],
+        'n_epochs': [10, 25, 50],
+        'n_factors': [5, 15, 30],
+        'reg_pu': [0.1, 0.3, 0.5],
+        'reg_qi': [0.1, 0.3, 0.5],
         'biased': [True, False],
+        'random_state': [42],
     }
+    # paramGridNMF = {
+    #     # 'n_epochs': [10],
+    #     'biased': [True, False],
+    # }
     bestParamsNMF = {}
     for param in paramGridNMF.keys():
         paramGrid = {
@@ -75,15 +75,15 @@ def runParameterTuning(ratingsTrainDataset):
 
     # KNN MODEL _______________________________________________________________________________________________________
     modelKNN = KNNWithMeans
-    # paramGridKNN = {
-    #     'k': [5, 10, 20, 40, 80, 100],
-    #     'min_k': [1, 3, 5],
-    #     'random_state': [332],
-    #     'verbose': [False],
-    # }
     paramGridKNN = {
-        'k': [5, 10],
+        'k': [5, 10, 20, 40, 80, 100],
+        'min_k': [1, 3, 5],
+        'random_state': [332],
+        'verbose': [False],
     }
+    # paramGridKNN = {
+    #     'k': [5, 10],
+    # }
     bestParamsKNN = {}
     for param in paramGridKNN.keys():
         paramGrid = {
@@ -119,8 +119,8 @@ def bestParamsToParamGrid(bestParams):
 
 
 def runDataSizeTuning(ratingsTrainDF, bestParamsNMF, bestParamsKNN):
-    scales = [0.1]
-    # scales = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
+    # scales = [0.1]
+    scales = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
     results = {
         'NMF': [],
         'KNN': [],
@@ -216,8 +216,8 @@ def saveModel(modelNMF, modelType):
     pickle.dump(modelNMF, open(filename, 'wb'))
 
 
-# dataFolder = 'ml-latest'
-dataFolder = 'ml-latest-small'
+dataFolder = 'ml-latest'
+# dataFolder = 'ml-latest-small'
 
 ratingsTrainDF, ratingsTestDF = getTrainTestData()
 ratingsTrainDataset = transformToDataset(ratingsTrainDF)
