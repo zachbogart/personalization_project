@@ -2,7 +2,6 @@ import pickle
 
 import pandas as pd
 import numpy as np
-from scipy.sparse import csr_matrix
 
 from surprise import NMF, KNNWithMeans
 from surprise.model_selection import GridSearchCV
@@ -11,7 +10,6 @@ from surprise.accuracy import rmse
 from surprise.accuracy import mae
 
 from sklearn import model_selection
-from surprise.model_selection import train_test_split
 
 import matplotlib.pyplot as plt
 
@@ -57,14 +55,15 @@ def runParameterTuning(ratingsTrainDataset):
         'reg_pu': [0.1, 0.3, 0.5],
         'reg_qi': [0.1, 0.3, 0.5],
         'biased': [True, False],
-        'random_state': [42],
     }
     # paramGridNMF = {
     #     # 'n_epochs': [10],
     #     'biased': [True, False],
     # }
+    print('NMF')
     bestParamsNMF = {}
     for param in paramGridNMF.keys():
+        print('Training {}'.format(param))
         paramGrid = {
             param: paramGridNMF[param],
             'random_state': [876],
@@ -78,14 +77,14 @@ def runParameterTuning(ratingsTrainDataset):
     paramGridKNN = {
         'k': [5, 10, 20, 40, 80, 100],
         'min_k': [1, 3, 5],
-        'random_state': [332],
-        'verbose': [False],
     }
     # paramGridKNN = {
     #     'k': [5, 10],
     # }
+    print('KNN')
     bestParamsKNN = {}
     for param in paramGridKNN.keys():
+        print('Training {}'.format(param))
         paramGrid = {
             param: paramGridKNN[param],
             'random_state': [876],
@@ -119,8 +118,8 @@ def bestParamsToParamGrid(bestParams):
 
 
 def runDataSizeTuning(ratingsTrainDF, bestParamsNMF, bestParamsKNN):
-    # scales = [0.1]
-    scales = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
+    scales = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
+    # scales = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
     results = {
         'NMF': [],
         'KNN': [],
@@ -220,15 +219,20 @@ dataFolder = 'ml-latest'
 # dataFolder = 'ml-latest-small'
 
 ratingsTrainDF, ratingsTestDF = getTrainTestData()
+# ratingsTrainDF = ratingsTrainDF.sample(frac=0.2, random_state=3213)
 ratingsTrainDataset = transformToDataset(ratingsTrainDF)
-
 ratingsTest = np.asarray(ratingsTestDF)
 print('Train data length: {}'.format(ratingsTrainDataset.df.shape[0]))
-
 print('Test data length: {}'.format(len(ratingsTest)))
 
+print('')
+print('Run parameter tuning')
 bestParamsNMF, bestParamsKNN = runParameterTuning(ratingsTrainDataset)
 
+print('')
+print('Run Size Tuning')
 runDataSizeTuning(ratingsTrainDF, bestParamsNMF, bestParamsKNN)
 
+print('')
+print('Train final models')
 trainFinalModels(ratingsTrainDataset, ratingsTest, bestParamsNMF, bestParamsKNN)
