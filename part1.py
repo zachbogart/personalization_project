@@ -105,7 +105,7 @@ def saveGridSearchResults(gridSearch, modelName, param):
         'cv_results': gridSearch.cv_results,
     }
 
-    fileName = 'gridSearchResults{}_{}.p'.format(modelName, param)
+    fileName = '{}gridSearchResults{}_{}.p'.format(RESULTS_PATH, modelName, param)
     with open(fileName, 'wb') as fp:
         pickle.dump(results, fp, protocol=pickle.HIGHEST_PROTOCOL)
 
