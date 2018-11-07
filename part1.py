@@ -5,7 +5,7 @@ import numpy as np
 
 from surprise import NMF, KNNWithMeans
 from surprise.model_selection import GridSearchCV
-from surprise import Dataset, Reader, evaluate
+from surprise import Dataset, Reader
 from surprise.accuracy import rmse
 from surprise.accuracy import mae
 
@@ -18,7 +18,7 @@ plt.style.use('seaborn-whitegrid')
 RESULTS_PATH = 'results/'
 
 
-def getTrainTestData():
+def getTrainTestData(dataFolder):
     ratingsDF = pd.read_csv(dataFolder + '/ratings.csv')
     ratingsDF = ratingsDF[['userId', 'movieId', 'rating']]
     ratingsTrainDF, ratingsTestDF = model_selection.train_test_split(ratingsDF, test_size=0.25, random_state=324)
@@ -62,20 +62,20 @@ def runParameterTuning(ratingsTrainDataset):
     # }
     print('NMF')
     bestParamsNMF = {}
-    for param in paramGridNMF.keys():
-        print('Training {}'.format(param))
-        paramGrid = {
-            param: paramGridNMF[param],
-            'random_state': [876],
-        }
-        gridSearchNMF = runModel(ratingsTrainDataset, modelNMF, paramGrid)
-        saveGridSearchResults(gridSearchNMF, 'NMF', param)
-        bestParamsNMF[param] = gridSearchNMF.best_params['rmse'][param]
+    # for param in paramGridNMF.keys():
+    #     print('Training {}'.format(param))
+    #     paramGrid = {
+    #         param: paramGridNMF[param],
+    #         'random_state': [876],
+    #     }
+    #     gridSearchNMF = runModel(ratingsTrainDataset, modelNMF, paramGrid)
+    #     saveGridSearchResults(gridSearchNMF, 'NMF', param)
+    #     bestParamsNMF[param] = gridSearchNMF.best_params['rmse'][param]
 
     # KNN MODEL _______________________________________________________________________________________________________
     modelKNN = KNNWithMeans
     paramGridKNN = {
-        'k': [5, 10, 20, 40, 80, 100],
+        'k': [5, 10, 20, 40, 80],
         'min_k': [1, 3, 5],
     }
     # paramGridKNN = {
@@ -118,8 +118,8 @@ def bestParamsToParamGrid(bestParams):
 
 
 def runDataSizeTuning(ratingsTrainDF, bestParamsNMF, bestParamsKNN):
-    scales = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
-    # scales = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
+    # scales = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
+    scales = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
     results = {
         'NMF': [],
         'KNN': [],
@@ -218,8 +218,8 @@ def saveModel(modelNMF, modelType):
 dataFolder = 'ml-latest'
 # dataFolder = 'ml-latest-small'
 
-ratingsTrainDF, ratingsTestDF = getTrainTestData()
-# ratingsTrainDF = ratingsTrainDF.sample(frac=0.2, random_state=3213)
+ratingsTrainDF, ratingsTestDF = getTrainTestData(dataFolder)
+ratingsTrainDF = ratingsTrainDF.sample(frac=0.02, random_state=3213)
 ratingsTrainDataset = transformToDataset(ratingsTrainDF)
 ratingsTest = np.asarray(ratingsTestDF)
 print('Train data length: {}'.format(ratingsTrainDataset.df.shape[0]))
